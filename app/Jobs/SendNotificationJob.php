@@ -41,7 +41,7 @@ class SendNotificationJob implements ShouldQueue
     public function handle(NotificationProcessor $processor): void
     {
         // Just uncomment this line below to test for failure handling and exponential backoff
-        // throw new \Exception('test');
+        throw new \Exception('test');
         $notification = Notification::find($this->notificationId);
 
         /**

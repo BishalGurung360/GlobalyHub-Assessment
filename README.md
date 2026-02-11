@@ -478,11 +478,12 @@ X-Tenant-ID: tenant-123
 The system follows a **layered architecture** pattern:
 
 ```
-Controller → Service → Repository → Model
+Controller → Action → Service → Repository → Model
 ```
 
 - **Controllers**: Handle HTTP requests, validation, and response formatting
-- **Services**: Contain business logic (NotificationService, NotificationProcessor, etc.)
+- **Action**: Contains one specific use case (CreateNotificationAction, GetRecentNotificationsAction, GetSummaryNotificationsAction)
+- **Services**: Contain helpers and business logic (NotificationProcessor, NotificationDeliveryService, etc.)
 - **Repositories**: Abstract data access layer (NotificationRepository)
 - **Models**: Eloquent models representing database entities
 
@@ -496,6 +497,7 @@ Controller → Service → Repository → Model
 #### 2. Repository Pattern
 - `BaseRepository`: Abstract base with common CRUD operations
 - `NotificationRepository`: Notification-specific queries with caching
+- `Auto cache invalidation`: Upon database write operations, cache are automatically invalidated
 - Contracts: `BaseRepositoryContract`, `NotificationRepositoryContract` for dependency inversion
 - Benefits: Testability, abstraction, and centralized data access logic
 

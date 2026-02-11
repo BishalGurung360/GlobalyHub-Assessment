@@ -5,7 +5,6 @@ namespace App\Services\CacheManager;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class CacheManager extends CacheResolver
@@ -103,11 +102,5 @@ class CacheManager extends CacheResolver
     {
         $taggable = Str::snake(Str::singular($this->tableName));
         Cache::tags([$taggable])->flush();
-        Log::channel("cache")->info(
-            message: "Cache Invalidate",
-            context: [
-                "triggered_from" => $taggable,
-            ]
-        );
     }
 }

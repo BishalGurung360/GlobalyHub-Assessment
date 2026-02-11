@@ -7,15 +7,15 @@ use Illuminate\Http\JsonResponse;
 use App\Dto\CreateNotificationDto;
 use App\Http\Controllers\BaseController;
 use App\Http\Resources\NotificationResource;
-use App\Contracts\NotificationServiceContract;
+use App\Actions\Notifications\CreateNotificationAction;
 use App\Http\Requests\StoreNotificationRequest;
 
 class NotificationController extends BaseController
 {
-    public function notify(StoreNotificationRequest $request, NotificationServiceContract $service): JsonResponse
+    public function notify(StoreNotificationRequest $request, CreateNotificationAction $action): JsonResponse
     {
         $dto = CreateNotificationDto::fromRequest($request);
-        $notification = $service->createAndQueue($dto);
+        $notification = $action->execute($dto);
 
         // I'm returning a success response with the response code 202 Accepted
         // This is because the notification is queued and will be processed in the background

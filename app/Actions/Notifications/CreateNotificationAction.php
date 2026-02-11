@@ -1,8 +1,7 @@
 <?php
 
-namespace App\Services;
+namespace App\Actions\Notifications;
 
-use App\Contracts\NotificationServiceContract;
 use App\Dto\CreateNotificationDto;
 use App\Enums\NotificationStatus;
 use App\Jobs\SendNotificationJob;
@@ -11,25 +10,19 @@ use App\Repositories\Contracts\NotificationRepositoryContract;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\RateLimiter;
 
-/**
- * Default implementation of the NotificationService.
- *
- * Responsibilities:
- * - Creating notification records
- * - Enforcing basic rate limits
- * - Dispatching queue jobs
- */
-class NotificationService implements NotificationServiceContract
+class CreateNotificationAction
 {
     public function __construct(
-        protected NotificationRepositoryContract $notificationRepository,
+        protected NotificationRepositoryContract $notificationRepository
     ) {
     }
 
     /**
-     * {@inheritdoc}
+     * Execute the action to create and queue a notification.
+     *
+     * @return Notification
      */
-    public function createAndQueue(CreateNotificationDto $dto): Notification
+    public function execute(CreateNotificationDto $dto): Notification
     {
         $this->enforceRateLimit($dto);
 
@@ -83,8 +76,7 @@ class NotificationService implements NotificationServiceContract
             unset($createData['max_attempts']);
         }
         
-        $notification = $this->notificationRepository->store($createData);
-        return $notification;
+        return $this->notificationRepository->store($createData);
     }
 
     /**
@@ -95,4 +87,3 @@ class NotificationService implements NotificationServiceContract
         SendNotificationJob::dispatch($notification->id, $notification->max_attempts);
     }
 }
-
