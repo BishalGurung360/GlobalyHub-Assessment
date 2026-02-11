@@ -42,10 +42,16 @@ The `.env.example` file is pre-configured with Docker container names and optima
 
 ### 3. Start Docker Containers
 
+First build the docker image. This might take a while:
+
+```bash
+docker compose build
+```
+
 Start the Docker containers using Docker Compose:
 
 ```bash
-docker-compose up -d
+docker compose up -d
 ```
 
 Or if using Laravel Sail:
@@ -67,7 +73,7 @@ This will start the following services:
 
 Using Docker:
 ```bash
-docker-compose exec globalyhub composer install
+docker compose exec globalyhub composer install
 ```
 
 Or using Laravel Sail:
@@ -78,7 +84,7 @@ Or using Laravel Sail:
 ### 5. Generate Application Key
 
 ```bash
-docker-compose exec globalyhub php artisan key:generate
+docker compose exec globalyhub php artisan key:generate
 ```
 
 Or using Laravel Sail:
@@ -89,7 +95,7 @@ Or using Laravel Sail:
 ### 6. Run Database Migrations
 
 ```bash
-docker-compose exec globalyhub php artisan migrate
+docker compose exec globalyhub php artisan migrate
 ```
 
 Or using Laravel Sail:
@@ -100,7 +106,7 @@ Or using Laravel Sail:
 ### 7. Seed the Database (Optional)
 
 ```bash
-docker-compose exec globalyhub php artisan db:seed
+docker compose exec globalyhub php artisan db:seed
 ```
 
 Or using Laravel Sail:
@@ -192,7 +198,7 @@ The `notifications` table includes:
 Run the seeder to create sample users:
 
 ```bash
-docker-compose exec globalyhub php artisan db:seed
+docker compose exec globalyhub php artisan db:seed
 ```
 
 Or using Laravel Sail:
@@ -209,7 +215,7 @@ Or using Laravel Sail:
 Start a queue worker:
 
 ```bash
-docker-compose exec globalyhub php artisan queue:work
+docker compose exec globalyhub php artisan queue:work
 ```
 
 Or using Laravel Sail:
@@ -250,7 +256,7 @@ stopwaitsecs=3600
 Run the test suite:
 
 ```bash
-docker-compose exec globalyhub php artisan test
+docker compose exec globalyhub php artisan test
 ```
 
 Or using Laravel Sail:
@@ -351,18 +357,6 @@ Content-Type: application/json
 - `422 Unprocessable Entity`: Validation errors
 - `500 Internal Server Error`: Rate limit exceeded
 
-**cURL Example**:
-```bash
-curl -X POST http://localhost/api/v1/notifications \
-  -H "X-Tenant-ID: tenant-123" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "user_id": 1,
-    "channel": "log",
-    "title": "Test Notification",
-    "body": "This is a test"
-  }'
-```
 
 ### 2. Get Recent Notifications
 
@@ -403,12 +397,6 @@ X-Tenant-ID: tenant-123
     "total": 1
   }
 }
-```
-
-**cURL Example**:
-```bash
-curl -X GET "http://localhost/api/v1/notifications/recent?limit=10&user_id=1" \
-  -H "X-Tenant-ID: tenant-123"
 ```
 
 ### 3. Get Summary Statistics
@@ -483,12 +471,6 @@ X-Tenant-ID: tenant-123
 }
 ```
 
-**cURL Example**:
-```bash
-curl -X GET "http://localhost/api/v1/notifications/summary?by_channel=true&since=2025-02-01" \
-  -H "X-Tenant-ID: tenant-123"
-```
-
 ## Design Decisions
 
 ### Architecture
@@ -526,11 +508,6 @@ Controller → Service → Repository → Model
 - `GetRecentNotificationsAction`, `GetSummaryNotificationsAction`
 - Encapsulates business logic for specific operations
 - Benefits: Single responsibility, testability, reusability
-
-#### 5. Resource Pattern
-- `NotificationResource`, `SummaryResource`
-- Transforms models/arrays into API responses
-- Benefits: Consistent response formatting, versioning support
 
 ### Multi-Tenancy
 
@@ -606,36 +583,6 @@ The following assumptions were made during development:
 
 7. **Scheduled Notifications**: Future-dated `scheduled_at` values are supported and jobs will be released until the scheduled time
 
-8. **Feature Tests Only**: Unit tests were excluded per project scope - only feature tests were implemented
+8. **Docker Environment**: All commands (composer, artisan) should be run from inside Docker container or using Laravel Sail
 
-9. **Docker Environment**: All commands (composer, artisan) should be run from inside Docker container or using Laravel Sail
-
-10. **Notification Channels**: Email and SMS channels log messages but don't perform actual delivery (as per requirement to simulate)
-
-## Troubleshooting
-
-### Queue Not Processing
-
-- Ensure Redis is running: `docker-compose ps`
-- Check queue worker is running: `docker-compose exec globalyhub php artisan queue:work`
-- Check failed jobs: `docker-compose exec globalyhub php artisan queue:failed`
-
-### Database Connection Issues
-
-- Verify Docker containers are running: `docker-compose ps`
-- Check `.env` file has correct `DB_HOST=globalyhub.mysql`
-- Ensure database container is healthy: `docker-compose logs globalyhub.mysql`
-
-### Rate Limit Issues
-
-- Check current rate limit: Review `NOTIFICATION_RATE_LIMIT_MAX_ATTEMPTS` in `.env`
-- Clear rate limiter: `docker-compose exec globalyhub php artisan tinker` then `RateLimiter::clear('notifications:*')`
-
-### Cache Issues
-
-- Clear cache: `docker-compose exec globalyhub php artisan cache:clear`
-- Check Redis connection: `docker-compose exec globalyhub.redis redis-cli ping`
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+9. **Notification Channels**: Email and SMS channels log messages but don't perform actual delivery (as per requirement to simulate)

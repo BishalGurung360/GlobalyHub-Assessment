@@ -47,10 +47,8 @@ services:
             test: ["CMD", "mysqladmin", "ping", "-p${DB_PASSWORD}"]
             retries: 3
             timeout: 5s
-        # command:
-        #     - --sort_buffer_size=1073741824
-        #     - --max_allowed_packet=4G
-        #     - --socket=/var/run/mysqld/mysqld-docker.sock
+        command:
+            - --socket=/var/run/mysqld/mysqld-docker.sock
     globalyhub.redis:
         image: 'redis:alpine'
         ports:
