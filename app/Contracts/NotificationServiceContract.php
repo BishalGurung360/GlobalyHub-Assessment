@@ -4,8 +4,6 @@ namespace App\Contracts;
 
 use App\Models\Notification;
 use App\Dto\CreateNotificationDto;
-use App\Services\NotificationService;
-use App\Services\NotificationApiResponse;
 
 /**
  * Service responsible for creating notification records,
@@ -20,6 +18,6 @@ interface NotificationServiceContract
      * applicable rate limits, dispatch the delivery job, and
      * return an API-safe representation of the notification.
      */
-    public function createAndQueue(CreateNotificationDto $dto): NotificationApiResponse;
+    public function createAndQueue(CreateNotificationDto $dto): Notification;
 }
 

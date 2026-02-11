@@ -32,10 +32,8 @@ class NotificationRepository extends BaseRepository implements NotificationRepos
      */
     public function getRecent(int $limit = 20, int $page = 1, array $filters = []): LengthAwarePaginator
     {
-        $perPage = min(max(1, $limit), self::MAX_PER_PAGE);
-
         // Automatically add tenant_id from context to filters for cache key
-        if (empty($filters['tenant_id']) && $tenantId = app('tenant_id')) {
+        if (empty($filters['tenant_id']) && $tenantId = getTenantId()) {
             $filters['tenant_id'] = $tenantId;
         }
 
@@ -43,10 +41,10 @@ class NotificationRepository extends BaseRepository implements NotificationRepos
 
         $result = $this->cacheManager->make(
             relates: [],
-            callback: function () use ($perPage, $page, $filters) {
+            callback: function () use ($limit, $page, $filters) {
                 // Global scope automatically filters by tenant_id
+                /** @var \Illuminate\Database\Eloquent\Builder $query */
                 $query = $this->model->newQuery()
-                    ->select(['id', 'uuid', 'status', 'channel', 'user_id', 'title', 'created_at', 'scheduled_at'])
                     ->orderByDesc('created_at');
 
                 if (! empty($filters['user_id'])) {
@@ -60,7 +58,7 @@ class NotificationRepository extends BaseRepository implements NotificationRepos
                 }
                 // tenant_id filtering is handled by global scope
 
-                return $query->paginate($perPage, ['*'], 'page', $page);
+                return $query->paginate(perPage: $limit, page: $page);
             },
             isCached: $this->isCached,
             identifier: ['recent', $limit, $page, $filters]
@@ -81,7 +79,7 @@ class NotificationRepository extends BaseRepository implements NotificationRepos
     public function getSummary(?\DateTimeInterface $since = null, bool $byChannel = false): array
     {
         // Include tenant_id in cache identifier for tenant-specific caching
-        $tenantId = app('tenant_id');
+        $tenantId = getTenantId();
 
         $this->cacheManager->setTTl(self::SUMMARY_CACHE_TTL_SECONDS);
 

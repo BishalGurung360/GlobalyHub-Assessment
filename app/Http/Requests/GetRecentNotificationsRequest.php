@@ -14,7 +14,7 @@ class GetRecentNotificationsRequest extends FormRequest
      */
     protected function prepareForValidation(): void
     {
-        if (!$this->has('tenant_id') && $tenantId = app('tenant_id')) {
+        if (!$this->has('tenant_id') && $tenantId = getTenantId()) {
             $this->merge(['tenant_id' => $tenantId]);
         }
     }

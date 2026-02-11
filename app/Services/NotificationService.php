@@ -18,7 +18,6 @@ use Illuminate\Support\Facades\RateLimiter;
  * - Creating notification records
  * - Enforcing basic rate limits
  * - Dispatching queue jobs
- * - Returning API-safe responses
  */
 class NotificationService implements NotificationServiceContract
 {
@@ -30,7 +29,7 @@ class NotificationService implements NotificationServiceContract
     /**
      * {@inheritdoc}
      */
-    public function createAndQueue(CreateNotificationDto $dto): NotificationApiResponse
+    public function createAndQueue(CreateNotificationDto $dto): Notification
     {
         $this->enforceRateLimit($dto);
 
@@ -40,7 +39,7 @@ class NotificationService implements NotificationServiceContract
 
         $this->dispatchNotificationJob($notification);
 
-        return $this->buildApiResponse($notification);
+        return $notification;
     }
 
     /**
@@ -50,7 +49,7 @@ class NotificationService implements NotificationServiceContract
      */
     protected function enforceRateLimit(CreateNotificationDto $dto): void
     {
-        $tenantId = $dto->tenantId ?? app('tenant_id');
+        $tenantId = $dto->tenantId ?? getTenantId();
         
         if (!$tenantId) {
             throw new \RuntimeException('Tenant ID is required for rate limiting.');
@@ -80,11 +79,6 @@ class NotificationService implements NotificationServiceContract
         $createData = $dto->toArray();
         $createData['status'] = NotificationStatus::Pending;
         
-        // Ensure tenant_id is set from context if not in DTO
-        if (empty($createData['tenant_id']) && $tenantId = app('tenant_id')) {
-            $createData['tenant_id'] = $tenantId;
-        }
-        
         if (empty($createData['max_attempts'])) {
             unset($createData['max_attempts']);
         }
@@ -99,19 +93,6 @@ class NotificationService implements NotificationServiceContract
     protected function dispatchNotificationJob(Notification $notification): void
     {
         SendNotificationJob::dispatch($notification->id, $notification->max_attempts);
-    }
-
-    /**
-     * Build an API-safe representation of the notification resource.
-     */
-    protected function buildApiResponse(Notification $notification): NotificationApiResponse
-    {
-        return new NotificationApiResponse(
-            uuid: $notification->uuid,
-            status: $notification->status->value,
-            scheduledAt: $notification->scheduled_at,
-            createdAt: $notification->created_at,
-        );
     }
 }
 

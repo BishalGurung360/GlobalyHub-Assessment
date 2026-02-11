@@ -4,12 +4,14 @@ namespace App\Models;
 
 use App\Enums\NotificationStatus;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Str;
 
 class Notification extends Model
 {
+    use HasFactory;
     protected $fillable = [
         'uuid',
         'tenant_id',
@@ -45,7 +47,7 @@ class Notification extends Model
     {
         // Global scope: automatically filter by tenant
         static::addGlobalScope('tenant', function (Builder $builder) {
-            if ($tenantId = app('tenant_id')) {
+            if ($tenantId = getTenantId()) {
                 $builder->where('tenant_id', $tenantId);
             }
         });
@@ -56,7 +58,7 @@ class Notification extends Model
             }
 
             // Auto-set tenant_id from context if missing
-            if (empty($notification->tenant_id) && $tenantId = app('tenant_id')) {
+            if (empty($notification->tenant_id) && $tenantId = getTenantId()) {
                 $notification->tenant_id = $tenantId;
             }
         });

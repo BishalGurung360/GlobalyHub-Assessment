@@ -4,11 +4,12 @@ namespace App\Repositories;
 
 use App\Repositories\Contracts\BaseRepositoryContract;
 use App\Services\CacheManager\CacheManager;
+use Illuminate\Database\Eloquent\Model;
 
 abstract class BaseRepository implements BaseRepositoryContract
 {
 
-    public $model;
+    public Model $model;
     public ?string $modelName;
     public ?string $modelKey;
     protected ?string $tableName;
@@ -30,7 +31,7 @@ abstract class BaseRepository implements BaseRepositoryContract
         $this->modelName = $this->modelName ?? class_basename($this->model);
         $this->tableName = $this->model->getTable();
         $this->modelKey = $this->modelKey ?? $this->tableName;
-        $this->multipleFetchQueryCache = config("cache_manager.status.multiple_fetch_query", true);
+        $this->multipleFetchQueryCache = true;
 
         $this->boot();
     }

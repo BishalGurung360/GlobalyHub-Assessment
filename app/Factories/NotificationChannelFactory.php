@@ -10,6 +10,8 @@ class NotificationChannelFactory
 {
     public static function make(string $channel): NotificationChannelContract
     {
+        // Notification channels are configured in the config/notification_channels.php file
+        // This is because we want to keep the notification channels configuration separate from the code
         $notificationChannels = config("notification_channels");
         $selectedChannel = Arr::first($notificationChannels, function ($notificationChannel) use ($channel) {
             return $notificationChannel["channel"] === $channel;
@@ -17,6 +19,6 @@ class NotificationChannelFactory
         if (is_null($selectedChannel)) {
             throw new NotificationChannelNotFound("Notification channel not found: {$channel}");
         }
-        return resolve(config("notification_channels.{$channel}.notification_class"));
+        return resolve($selectedChannel["notification_class"]);
     }
 }

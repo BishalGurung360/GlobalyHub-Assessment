@@ -15,7 +15,7 @@ class EmailNotification implements NotificationChannelContract
         Log::info('EmailNotification: sending notification', ['notification' => $notification]);
 
         // Note: I have not actually implemented the email logic in the NotificationEmail class
-        // That is not the purpose of this assessment
-        Mail::to($notification->user->email)->send(new NotificationEmail($notification));
+        // I have made it easy to implement the email logic if required
+        // Mail::to($notification->user->email)->send(new NotificationEmail($notification));
     }
 }

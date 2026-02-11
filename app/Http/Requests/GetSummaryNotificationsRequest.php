@@ -10,7 +10,7 @@ class GetSummaryNotificationsRequest extends FormRequest
     {
         return [
             'since' => ['sometimes', 'nullable', 'date'],
-            'by_channel' => ['sometimes', 'boolean'],
+            'by_channel' => ['sometimes', 'accepted'],
         ];
     }
 }

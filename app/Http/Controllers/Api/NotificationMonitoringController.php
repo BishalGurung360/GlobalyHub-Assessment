@@ -12,6 +12,8 @@ use App\Http\Resources\NotificationCollection;
 use App\Http\Resources\SummaryResource;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\BaseController;
+use App\Http\Resources\NotificationResource;
+use Illuminate\Http\Response;
 
 class NotificationMonitoringController extends BaseController
 {
@@ -22,7 +24,10 @@ class NotificationMonitoringController extends BaseController
         $dto = GetRecentNotificationsDto::fromRequest($request);
         $paginator = $action->execute($dto);
 
-        return response()->json(new NotificationCollection($paginator));
+        return $this->successResponse(
+            payload: NotificationResource::collection($paginator),
+            responseCode: Response::HTTP_OK
+        );
     }
 
     public function summary(
@@ -32,6 +37,9 @@ class NotificationMonitoringController extends BaseController
         $dto = GetSummaryNotificationsDto::fromRequest($request);
         $result = $action->execute($dto);
 
-        return response()->json(new SummaryResource($result));
+        return $this->successResponse(
+            payload: new SummaryResource($result),
+            responseCode: Response::HTTP_OK
+        );
     }
 }
