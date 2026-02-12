@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Models\Notification;
+use App\Repositories\Contracts\NotificationRepositoryContract;
 use App\Services\NotificationProcessor;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -38,11 +39,11 @@ class SendNotificationJob implements ShouldQueue
         $this->tries = $maxAttempts ?? self::DEFAULT_TRIES;
     }
 
-    public function handle(NotificationProcessor $processor): void
+    public function handle(NotificationProcessor $processor, NotificationRepositoryContract $notificationRepository): void
     {
         // Just uncomment this line below to test for failure handling and exponential backoff
-        throw new \Exception('test');
-        $notification = Notification::find($this->notificationId);
+        // throw new \Exception('test');
+        $notification = $notificationRepository->get($this->notificationId);
 
         /**
          * If the notification no longer exists, we log and return

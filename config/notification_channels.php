@@ -2,6 +2,7 @@
 
 use App\Services\NotificationChannels\EmailNotification;
 use App\Services\NotificationChannels\LogNotification;
+use App\Services\NotificationChannels\SlackNotification;
 use App\Services\NotificationChannels\SmsNotification;
 
 
@@ -24,4 +25,8 @@ return [
         "channel" => "sms",
         "notification_class" => SmsNotification::class,
     ],
+    // [
+    //     "channel" => "slack",
+    //     "notification_class" => SlackNotification::class,
+    // ],
 ];
